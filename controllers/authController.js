@@ -30,8 +30,8 @@ const register = asyncWrapper(async (req, res, next) => {
     fullname,
     mobile,
   });
-  res.status(StatusCodes.CREATED).json(user);
-  // res.status(StatusCodes.CREATED).json({ success: true, data: user });
+  // res.status(StatusCodes.CREATED).json(user);
+  res.status(StatusCodes.CREATED).json({ success: true, data: user });
 });
 
 const login = asyncWrapper(async (req, res, next) => {
