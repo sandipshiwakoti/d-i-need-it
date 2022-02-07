@@ -38,7 +38,6 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const createdBy = req.user.userId;
   const { title, price, url, purchased } = req.body;
-  console.log(title, price, url, purchased);
   if (!title || !price) {
     return next(
       new BadRequestError(

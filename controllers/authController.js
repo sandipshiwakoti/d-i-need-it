@@ -17,12 +17,22 @@ const comparePassword = async (password, documentPassword) => {
 
 const register = asyncWrapper(async (req, res, next) => {
   const { email, password, fullname, mobile } = req.body;
-  console.log(email, password, fullname, mobile);
   if (!email || !password || !fullname || !mobile) {
     return next(
       new BadRequestError("Fields cannot be empty", StatusCodes.BAD_REQUEST)
     );
   }
+
+  const userWithEmail = await User.findOne({ email });
+  if (userWithEmail) {
+    return next(
+      new NotFoundError(
+        "User with this email address already exists",
+        StatusCodes.BAD_REQUEST
+      )
+    );
+  }
+
   const encryptedPassword = await encryptPassword(password);
   const user = await User.create({
     email,
@@ -47,17 +57,22 @@ const login = asyncWrapper(async (req, res, next) => {
 
   let user = await User.findOne({ email });
   if (!user) {
-    return next(new NotFoundError("User doesn't exist", StatusCodes.NOT_FOUND));
+    return next(
+      new NotFoundError(
+        "User with this email address doesn't exist",
+        StatusCodes.BAD_REQUEST
+      )
+    );
   }
-  console.log(user.password, password);
+
   const isPasswordCorrect = await comparePassword(password, user.password);
-  console.log(isPasswordCorrect);
 
   if (!isPasswordCorrect) {
     return next(
       new NotFoundError("Incorrect password!", StatusCodes.NOT_FOUND)
     );
   }
+
   if (!user) {
     return next(
       new UnauthorizedRequestError(

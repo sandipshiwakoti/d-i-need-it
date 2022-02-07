@@ -18,6 +18,7 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
 const mongodbURI = process.env.MONGODB_URI;
+const localdbURI = "mongodb://localhost:27017/doineedit";
 
 const start = async () => {
   try {
