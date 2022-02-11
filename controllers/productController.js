@@ -5,12 +5,13 @@ const asyncWrapper = require("../middlewares/asyncWrapper");
 const Product = require("../models/product");
 
 const createProduct = asyncWrapper(async (req, res, next) => {
-  const { title, price, url, purchased } = req.body;
+  const { title, price, url, description, purchased } = req.body;
   const createdBy = req.user.userId;
   const product = await Product.create({
     title,
     price,
     url,
+    description,
     purchased,
     createdBy,
   });
@@ -37,7 +38,7 @@ const getProduct = asyncWrapper(async (req, res, next) => {
 const updateProduct = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const createdBy = req.user.userId;
-  const { title, price, url, purchased } = req.body;
+  const { title, price, url, description, purchased } = req.body;
   if (!title || !price) {
     return next(
       new BadRequestError(
@@ -48,7 +49,7 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
   }
   const product = await Product.findOneAndUpdate(
     { _id: id, createdBy },
-    { title, price, url, purchased },
+    { title, price, url, description, purchased },
     { new: true, runValidators: true, omitUndefined: true }
   );
   if (!product) {

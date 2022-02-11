@@ -15,6 +15,10 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  description: {
+    type: String,
+    trim: true,
+  },
   purchased: {
     type: Boolean,
     default: false,
