@@ -69,10 +69,28 @@ const removeProduct = asyncWrapper(async (req, res, next) => {
   }
 });
 
+const markProductPurchased = asyncWrapper(async (req, res, next) => {
+  const { id } = req.params;
+  const { purchased } = req.body;
+
+  const createdBy = req.user.userId;
+  const product = await Product.findOneAndUpdate(
+    { _id: id, createdBy },
+    { purchased },
+    { new: true, runValidators: true }
+  );
+  if (!product) {
+    next(new BadRequestError("Product not found", StatusCodes.BAD_REQUEST));
+  } else {
+    res.status(StatusCodes.OK).json({ success: true, data: product });
+  }
+});
+
 module.exports = {
   createProduct,
   getProducts,
   getProduct,
   updateProduct,
   removeProduct,
+  markProductPurchased,
 };
