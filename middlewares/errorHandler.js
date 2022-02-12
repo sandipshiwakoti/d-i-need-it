@@ -10,7 +10,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.code && err.code === 11000) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
-      message: "This email address is already in use.",
+      message: "User already exists.",
     });
   }
 

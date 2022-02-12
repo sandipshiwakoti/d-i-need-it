@@ -33,6 +33,16 @@ const register = asyncWrapper(async (req, res, next) => {
     );
   }
 
+  const userWithMobile = await User.findOne({ mobile });
+  if (userWithMobile) {
+    return next(
+      new NotFoundError(
+        "User with this mobile number already exists",
+        StatusCodes.BAD_REQUEST
+      )
+    );
+  }
+
   const encryptedPassword = await encryptPassword(password);
   const user = await User.create({
     email,

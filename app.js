@@ -11,6 +11,7 @@ const connectDB = require("./db/connect");
 const errorHandler = require("./middlewares/errorHandler");
 const productRouter = require("./routes/productRouter");
 const authRouter = require("./routes/authRouter");
+const userRouter = require("./routes/userRouter");
 const notFound = require("./middlewares/notFound");
 const auth = require("./middlewares/auth");
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/products", auth, productRouter);
+app.use("/api/v1/users", auth, userRouter);
 app.use(notFound);
 app.use(errorHandler);
 
@@ -29,7 +31,7 @@ const localdbURI = "mongodb://localhost:27017/doineedit";
 
 const start = async () => {
   try {
-    await connectDB(mongodbURI);
+    await connectDB(localdbURI);
     console.log("Connected!!");
     app.listen(port, () => {
       console.log(`Listening at port ${port}`);
