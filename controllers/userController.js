@@ -36,7 +36,7 @@ const updateUser = asyncWrapper(async (req, res, next) => {
     );
   }
 
-  await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     { _id: userId },
     {
       fullname,
@@ -48,9 +48,11 @@ const updateUser = asyncWrapper(async (req, res, next) => {
       runValidators: true,
     }
   );
-  res
-    .status(StatusCodes.OK)
-    .json({ success: true, message: "Account updated successfully!" });
+  res.status(StatusCodes.OK).json({
+    success: true,
+    data: updatedUser,
+    message: "Account updated successfully!",
+  });
 });
 
 const updatePassword = asyncWrapper(async (req, res, next) => {
@@ -81,7 +83,7 @@ const updatePassword = asyncWrapper(async (req, res, next) => {
   }
 
   const encryptedPassword = await encryptPassword(newPassword);
-  await User.updateOne(
+  const updatedUser = await User.updateOne(
     { _id: userId },
     { password: encryptedPassword },
     {
@@ -90,9 +92,11 @@ const updatePassword = asyncWrapper(async (req, res, next) => {
     }
   );
 
-  res
-    .status(StatusCodes.OK)
-    .json({ success: true, message: "Password changed successfully!" });
+  res.status(StatusCodes.OK).json({
+    success: true,
+    data: updatedUser,
+    message: "Password changed successfully!",
+  });
 });
 
 module.exports = { updateUser, updatePassword };
