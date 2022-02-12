@@ -31,7 +31,7 @@ const localdbURI = "mongodb://localhost:27017/doineedit";
 
 const start = async () => {
   try {
-    await connectDB(localdbURI);
+    await connectDB(mongodbURI);
     console.log("Connected!!");
     app.listen(port, () => {
       console.log(`Listening at port ${port}`);
