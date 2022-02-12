@@ -93,7 +93,9 @@ const removeProduct = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const createdBy = req.user.userId;
   const product = await Product.findOneAndDelete({ _id: id, createdBy });
-  await cloudinary.uploader.destroy(product.imageId);
+  if (product.imageId) {
+    await cloudinary.uploader.destroy(product.imageId);
+  }
   if (!product) {
     next(new BadRequestError("Product not found", StatusCodes.BAD_REQUEST));
   } else {
