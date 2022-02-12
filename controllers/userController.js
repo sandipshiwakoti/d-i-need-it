@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, UnauthorizedRequestError } = require("../errors");
 const NotFoundError = require("../errors/not-found");
@@ -48,11 +49,17 @@ const updateUser = asyncWrapper(async (req, res, next) => {
       runValidators: true,
     }
   );
-  res.status(StatusCodes.OK).json({
-    success: true,
-    data: updatedUser,
-    message: "Account updated successfully!",
-  });
+
+  const payload = {
+    userId: user._id,
+    email,
+    fullname,
+    mobile,
+  };
+  const secret = process.env.JWT_SECRET;
+  const options = { expiresIn: "10d" };
+  const token = await jwt.sign(payload, secret, options);
+  res.status(StatusCodes.OK).json({ data: token, success: true });
 });
 
 const updatePassword = asyncWrapper(async (req, res, next) => {
@@ -92,11 +99,16 @@ const updatePassword = asyncWrapper(async (req, res, next) => {
     }
   );
 
-  res.status(StatusCodes.OK).json({
-    success: true,
-    data: updatedUser,
-    message: "Password changed successfully!",
-  });
+  const payload = {
+    userId: user._id,
+    email: user.email,
+    fullname: user.fullname,
+    mobile: user.mobile,
+  };
+  const secret = process.env.JWT_SECRET;
+  const options = { expiresIn: "10d" };
+  const token = await jwt.sign(payload, secret, options);
+  res.status(StatusCodes.OK).json({ data: token, success: true });
 });
 
 module.exports = { updateUser, updatePassword };
