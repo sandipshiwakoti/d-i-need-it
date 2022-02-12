@@ -1,21 +1,32 @@
 const { StatusCodes } = require("http-status-codes");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
+
 const { BadRequestError } = require("../errors");
 const asyncWrapper = require("../middlewares/asyncWrapper");
 const Product = require("../models/product");
+const user = require("../models/user");
 
 const createProduct = asyncWrapper(async (req, res, next) => {
   const { title, price, url, description, purchased } = req.body;
   const createdBy = req.user.userId;
-  const product = await Product.create({
-    title,
-    price,
-    url,
-    description,
-    purchased,
-    createdBy,
-  });
-  res.status(StatusCodes.CREATED).json({ success: true, data: product });
+
+  let body = { title, price, url, description, purchased, createdBy };
+
+  if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      use_filename: true,
+      folder: `doineedit/${createdBy}`,
+    });
+    body = {
+      ...body,
+      image: result.secure_url,
+      imageId: result.public_id,
+    };
+  }
+
+  const newProduct = await Product.create(body);
+  res.status(StatusCodes.CREATED).json({ success: true, data: newProduct });
 });
 
 const getProducts = asyncWrapper(async (req, res, next) => {
@@ -47,22 +58,42 @@ const updateProduct = asyncWrapper(async (req, res, next) => {
       )
     );
   }
-  const product = await Product.findOneAndUpdate(
-    { _id: id, createdBy },
-    { title, price, url, description, purchased },
-    { new: true, runValidators: true, omitUndefined: true }
-  );
+
+  const product = await Product.findOne({ _id: id, createdBy });
+
   if (!product) {
     next(new BadRequestError("Product not found", StatusCodes.BAD_REQUEST));
-  } else {
-    res.status(StatusCodes.OK).json({ success: true, data: product });
   }
+
+  let body = { title, price, url, description, purchased };
+  if (req.file) {
+    if (product.imageId) {
+      await cloudinary.uploader.destroy(product.imageId);
+    }
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      use_filename: true,
+      folder: `doineedit/${createdBy}`,
+    });
+    body = {
+      ...body,
+      image: result.secure_url,
+      imageId: result.public_id,
+    };
+  }
+
+  const newProduct = await Product.findOneAndUpdate(
+    { _id: id, createdBy },
+    body,
+    { new: true, runValidators: true, omitUndefined: true }
+  );
+  res.status(StatusCodes.OK).json({ success: true, data: newProduct });
 });
 
 const removeProduct = asyncWrapper(async (req, res, next) => {
   const { id } = req.params;
   const createdBy = req.user.userId;
   const product = await Product.findOneAndDelete({ _id: id, createdBy });
+  await cloudinary.uploader.destroy(product.imageId);
   if (!product) {
     next(new BadRequestError("Product not found", StatusCodes.BAD_REQUEST));
   } else {

@@ -23,6 +23,12 @@ const ProductSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  image: {
+    type: String,
+  },
+  imageId: {
+    type: String,
+  },
   createdBy: {
     type: mongoose.Types.ObjectId,
     ref: "User",
