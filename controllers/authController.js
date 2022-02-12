@@ -92,7 +92,12 @@ const login = asyncWrapper(async (req, res, next) => {
     );
   }
 
-  const payload = { userId: user._id, email, fullname: user.fullname };
+  const payload = {
+    userId: user._id,
+    email,
+    fullname: user.fullname,
+    mobile: user.mobile,
+  };
   const secret = process.env.JWT_SECRET;
   const options = { expiresIn: "10d" };
   const token = await jwt.sign(payload, secret, options);
