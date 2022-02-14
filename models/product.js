@@ -29,6 +29,9 @@ const ProductSchema = new mongoose.Schema({
   imageId: {
     type: String,
   },
+  location: {
+    type: String,
+  },
   createdBy: {
     type: mongoose.Types.ObjectId,
     ref: "User",

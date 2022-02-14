@@ -120,6 +120,23 @@ const markProductPurchased = asyncWrapper(async (req, res, next) => {
   }
 });
 
+const updateLocation = asyncWrapper(async (req, res, next) => {
+  const { id } = req.params;
+  const { location } = req.body;
+
+  const createdBy = req.user.userId;
+  const product = await Product.findOneAndUpdate(
+    { _id: id, createdBy },
+    { location },
+    { new: true, runValidators: true }
+  );
+  if (!product) {
+    next(new BadRequestError("Product not found", StatusCodes.BAD_REQUEST));
+  } else {
+    res.status(StatusCodes.OK).json({ success: true, data: product });
+  }
+});
+
 module.exports = {
   createProduct,
   getProducts,
@@ -127,4 +144,5 @@ module.exports = {
   updateProduct,
   removeProduct,
   markProductPurchased,
+  updateLocation,
 };
